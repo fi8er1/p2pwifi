@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class MakeCallActivity extends Activity {
         startListener();
         makeCall();
 
-        Button endButton = (Button) findViewById(R.id.buttonEndCall);
+        ImageButton endButton = (ImageButton) findViewById(R.id.buttonEndCall);
         endButton.setOnClickListener(new OnClickListener() {
 
             @Override
