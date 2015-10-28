@@ -241,7 +241,7 @@ public class MainActivity extends Activity {
                                 intent.putExtra(EXTRA_CONTACT, name);
                                 intent.putExtra(EXTRA_IP, address.substring(1, address.length()));
                                 IN_CALL = true;
-                                //LISTEN = false;
+//                                LISTEN = false;
                                 //stopCallListener();
                                 startActivity(intent);
                             }

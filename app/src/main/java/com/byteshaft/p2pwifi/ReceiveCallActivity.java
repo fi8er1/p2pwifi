@@ -2,12 +2,16 @@ package com.byteshaft.p2pwifi;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -27,6 +31,10 @@ public class ReceiveCallActivity extends Activity {
     private boolean LISTEN = true;
     private boolean IN_CALL = false;
     private AudioCall call;
+    ImageButton acceptButton;
+    ImageButton rejectButton;
+    TextView tv_incoming_call;
+    Ringtone ringtone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +45,22 @@ public class ReceiveCallActivity extends Activity {
         contactName = intent.getStringExtra(MainActivity.EXTRA_CONTACT);
         contactIp = intent.getStringExtra(MainActivity.EXTRA_IP);
 
-        TextView textView = (TextView) findViewById(R.id.textViewIncomingCall);
-        textView.setText("Incoming call: " + contactName);
+        tv_incoming_call = (TextView) findViewById(R.id.textViewIncomingCall);
+        tv_incoming_call.setText("Incoming call: " + contactName);
 
         final Button endButton = (Button) findViewById(R.id.buttonEndCall1);
         endButton.setVisibility(View.INVISIBLE);
 
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+        ringtone.play();
+
         startListener();
 
         // ACCEPT BUTTON
-        Button acceptButton = (Button) findViewById(R.id.buttonAccept);
+        acceptButton = (ImageButton) findViewById(R.id.buttonAccept);
+        rejectButton = (ImageButton) findViewById(R.id.buttonReject);
+
         acceptButton.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -61,13 +75,12 @@ public class ReceiveCallActivity extends Activity {
                     call = new AudioCall(address);
                     call.startCall();
                     // Hide the buttons as they're not longer required
-                    Button accept = (Button) findViewById(R.id.buttonAccept);
-                    accept.setEnabled(false);
-
-                    Button reject = (Button) findViewById(R.id.buttonReject);
-                    reject.setEnabled(false);
-
+                    acceptButton.setVisibility(View.INVISIBLE);
+                    tv_incoming_call.setText("On Call: " + contactName);
                     endButton.setVisibility(View.VISIBLE);
+                    if (ringtone.isPlaying()) {
+                        ringtone.stop();
+                    }
                 }
                 catch(UnknownHostException e) {
 
@@ -81,11 +94,12 @@ public class ReceiveCallActivity extends Activity {
         });
 
         // REJECT BUTTON
-        Button rejectButton = (Button) findViewById(R.id.buttonReject);
+        ImageButton rejectButton = (ImageButton) findViewById(R.id.buttonReject);
         rejectButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
+
                 // Send a reject notification and end the call
                 sendMessage("REJ:");
                 endCall();
@@ -94,16 +108,19 @@ public class ReceiveCallActivity extends Activity {
 
         // END BUTTON
         endButton.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
-
                 endCall();
             }
         });
     }
 
     private void endCall() {
+
+        if (ringtone.isPlaying()) {
+            ringtone.stop();
+        }
+
         // End the call and send a notification
         stopListener();
         if(IN_CALL) {
