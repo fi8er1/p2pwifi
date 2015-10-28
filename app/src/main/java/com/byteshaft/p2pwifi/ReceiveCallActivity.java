@@ -2,6 +2,9 @@ package com.byteshaft.p2pwifi;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -31,6 +34,7 @@ public class ReceiveCallActivity extends Activity {
     ImageButton acceptButton;
     ImageButton rejectButton;
     TextView tv_incoming_call;
+    Ringtone ringtone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,10 @@ public class ReceiveCallActivity extends Activity {
 
         final Button endButton = (Button) findViewById(R.id.buttonEndCall1);
         endButton.setVisibility(View.INVISIBLE);
+
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+        ringtone.play();
 
         startListener();
 
@@ -70,6 +78,9 @@ public class ReceiveCallActivity extends Activity {
                     acceptButton.setVisibility(View.INVISIBLE);
                     tv_incoming_call.setText("On Call: " + contactName);
                     endButton.setVisibility(View.VISIBLE);
+                    if (ringtone.isPlaying()) {
+                        ringtone.stop();
+                    }
                 }
                 catch(UnknownHostException e) {
 
@@ -88,6 +99,11 @@ public class ReceiveCallActivity extends Activity {
 
             @Override
             public void onClick(View v) {
+                
+                if (ringtone.isPlaying()) {
+                    ringtone.stop();
+                }
+
                 // Send a reject notification and end the call
                 sendMessage("REJ:");
                 endCall();
@@ -96,10 +112,8 @@ public class ReceiveCallActivity extends Activity {
 
         // END BUTTON
         endButton.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
-
                 endCall();
             }
         });
