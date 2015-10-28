@@ -10,32 +10,34 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/textViewEnterName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter a display name" />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_marginTop="100dp"
+        android:id="@+id/layout_username">
+        <TextView
+            android:id="@+id/textViewEnterName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Name"
+            android:textStyle="bold"
+            android:textSize="16dp"/>
         <EditText
             android:id="@+id/editTextDisplayName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:ems="10"
             android:inputType="textPersonName"
             android:maxLength="15"
             android:singleLine="true" >
             <requestFocus />
         </EditText>
-
         <Button
             android:id="@+id/buttonStart"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Start" />
     </LinearLayout>
 
@@ -45,7 +47,6 @@
             android:layout_height="wrap_content"
             android:text="Select a contact to call"
             android:visibility="invisible" />
-
         <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
