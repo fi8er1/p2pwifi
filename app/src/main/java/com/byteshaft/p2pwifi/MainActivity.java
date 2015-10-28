@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int LISTENER_PORT = 50003;
     private static final int BUF_SIZE = 1024;
     private ContactManager contactManager;
-    private String displayName;
+    public static String displayName;
     private boolean STARTED = false;
     private boolean IN_CALL = false;
     private boolean LISTEN = false;
@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
                 contactManager = new ContactManager(displayName, getBroadcastIp());
                 startCallListener();
+                updateContactList();
             }
         });
 
@@ -143,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
         // Create a radio button for each contact in the HashMap
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.contactList);
         radioGroup.removeAllViews();
+        ContactManager.contacts.remove(displayName);
 
         for(String name : contacts.keySet()) {
 

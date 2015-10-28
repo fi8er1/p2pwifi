@@ -18,7 +18,7 @@ public class ContactManager {
     private static final int BROADCAST_BUF_SIZE = 1024;
     private boolean BROADCAST = true;
     private boolean LISTEN = true;
-    private HashMap<String, InetAddress> contacts;
+    public static HashMap<String, InetAddress> contacts;
     private InetAddress broadcastIP;
 
     public ContactManager(String name, InetAddress broadcastIP) {
