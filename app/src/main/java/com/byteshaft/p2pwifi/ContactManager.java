@@ -23,7 +23,7 @@ public class ContactManager {
 
     public ContactManager(String name, InetAddress broadcastIP) {
 
-        contacts = new HashMap<String, InetAddress>();
+        contacts = new HashMap<>();
         this.broadcastIP = broadcastIP;
         listen();
         broadcastName(name, broadcastIP);
