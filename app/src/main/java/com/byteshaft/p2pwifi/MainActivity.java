@@ -44,6 +44,10 @@ public class MainActivity extends Activity {
     private boolean firstRun;
     private LinearLayout userLayout;
     SharedPreferences mSharedPreferences;
+    String address;
+    RadioButton radioButton;
+    int selectedButton;
+    RadioGroup radioGroup;
     EditText displayNameText;
     ImageButton updateButton;
 
@@ -131,8 +135,8 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
 
                 RadioGroup radioGroup = (RadioGroup) findViewById(R.id.contactList);
-                int selectedButton = radioGroup.getCheckedRadioButtonId();
-                if(selectedButton == -1) {
+                selectedButton = radioGroup.getCheckedRadioButtonId();
+                if (selectedButton == -1) {
                     // If no device was selected, present an error message to the user
                     Log.w(LOG_TAG, "Warning: no contact selected");
                     final AlertDialog alert = new AlertDialog.Builder(MainActivity.this).create();
@@ -156,7 +160,7 @@ public class MainActivity extends Activity {
                 // Send this information to the MakeCallActivity and start that activity
                 Intent intent = new Intent(MainActivity.this, MakeCallActivity.class);
                 intent.putExtra(EXTRA_CONTACT, contact);
-                String address = ip.toString();
+                address = ip.toString();
                 address = address.substring(1, address.length());
                 intent.putExtra(EXTRA_IP, address);
                 intent.putExtra(EXTRA_DISPLAYNAME, displayName);
@@ -169,12 +173,13 @@ public class MainActivity extends Activity {
         // Create a copy of the HashMap used by the ContactManager
         HashMap<String, InetAddress> contacts = contactManager.getContacts();
         // Create a radio button for each contact in the HashMap
-        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.contactList);
+        radioGroup = (RadioGroup) findViewById(R.id.contactList);
         radioGroup.removeAllViews();
+        getBroadcastIp();
         ContactManager.contacts.remove(displayName);
 
         for(String name : contacts.keySet()) {
-            RadioButton radioButton = new RadioButton(getBaseContext());
+            radioButton = new RadioButton(getBaseContext());
             radioButton.setText(name);
             radioButton.setTextColor(Color.BLACK);
             radioGroup.addView(radioButton);
@@ -295,6 +300,9 @@ public class MainActivity extends Activity {
         STARTED = true;
         contactManager = new ContactManager(displayName, getBroadcastIp());
         startCallListener();
+        radioGroup.check(0);
+        selectedButton = -1;
+        System.out.println(selectedButton);
     }
 
     private void notFirstRun() {

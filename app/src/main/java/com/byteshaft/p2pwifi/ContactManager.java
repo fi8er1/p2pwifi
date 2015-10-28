@@ -14,12 +14,13 @@ public class ContactManager {
 
     private static final String LOG_TAG = "ContactManager";
     public static final int BROADCAST_PORT = 50001; // Socket on which packets are sent/received
-    private static final int BROADCAST_INTERVAL = 10000; // Milliseconds
+    private static final int BROADCAST_INTERVAL = 1000; // Milliseconds
     private static final int BROADCAST_BUF_SIZE = 1024;
     private boolean BROADCAST = true;
     private boolean LISTEN = true;
     public static HashMap<String, InetAddress> contacts;
     private InetAddress broadcastIP;
+    Thread broadcastThread;
 
     public ContactManager(String name, InetAddress broadcastIP) {
 
@@ -96,7 +97,7 @@ public class ContactManager {
     public void broadcastName(final String name, final InetAddress broadcastIP) {
         // Broadcasts the name of the device at a regular interval
         Log.i(LOG_TAG, "Broadcasting started!");
-        Thread broadcastThread = new Thread(new Runnable() {
+        broadcastThread = new Thread(new Runnable() {
 
             @Override
             public void run() {
@@ -145,6 +146,8 @@ public class ContactManager {
     public void stopBroadcasting() {
         // Ends the broadcasting thread
         BROADCAST = false;
+        broadcastThread.interrupt();
+        broadcastThread = null;
     }
 
     public void listen() {
