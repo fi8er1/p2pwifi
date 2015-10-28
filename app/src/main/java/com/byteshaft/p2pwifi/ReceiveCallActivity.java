@@ -99,10 +99,6 @@ public class ReceiveCallActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                
-                if (ringtone.isPlaying()) {
-                    ringtone.stop();
-                }
 
                 // Send a reject notification and end the call
                 sendMessage("REJ:");
@@ -120,6 +116,11 @@ public class ReceiveCallActivity extends Activity {
     }
 
     private void endCall() {
+
+        if (ringtone.isPlaying()) {
+            ringtone.stop();
+        }
+
         // End the call and send a notification
         stopListener();
         if(IN_CALL) {

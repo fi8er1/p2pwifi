@@ -9,7 +9,6 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ReceiveCallActivity" >
-
     <TextView
         android:id="@+id/textViewIncomingCall"
         android:layout_width="wrap_content"
@@ -42,7 +41,6 @@
             android:layout_marginLeft="50dp"
             android:background="@mipmap/ic_reject_call"/>
     </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
