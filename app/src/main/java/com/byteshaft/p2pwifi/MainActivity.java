@@ -13,8 +13,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -46,6 +48,8 @@ public class MainActivity extends Activity {
     RadioButton radioButton;
     int selectedButton;
     RadioGroup radioGroup;
+    EditText displayNameText;
+    ImageButton updateButton;
 
     public final static String EXTRA_CONTACT = "hw.dt83.udpchat.CONTACT";
     public final static String EXTRA_IP = "hw.dt83.udpchat.IP";
@@ -56,6 +60,10 @@ public class MainActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        displayNameText = (EditText) findViewById(R.id.editTextDisplayName);
+
+        updateButton = (ImageButton) findViewById(R.id.buttonUpdate);
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -69,6 +77,15 @@ public class MainActivity extends Activity {
             notFirstRun();
         }
 
+        displayNameText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard(v);
+                }
+            }
+        });
+
         Log.i(LOG_TAG, "P2Pwifi started");
 
         // START BUTTON
@@ -80,8 +97,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
 
                 Log.i(LOG_TAG, "Start button pressed");
-
-                EditText displayNameText = (EditText) findViewById(R.id.editTextDisplayName);
 
                 String username = displayNameText.getText().toString();
 
@@ -102,8 +117,7 @@ public class MainActivity extends Activity {
 
         // UPDATE BUTTON
         // Updates the list of reachable devices
-        final Button btnUpdate = (Button) findViewById(R.id.buttonUpdate);
-        btnUpdate.setOnClickListener(new OnClickListener() {
+        updateButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -114,7 +128,7 @@ public class MainActivity extends Activity {
 
         // CALL BUTTON
         // Attempts to initiate an audio chat session with the selected device
-        final Button btnCall = (Button) findViewById(R.id.buttonCall);
+        final ImageButton btnCall = (ImageButton) findViewById(R.id.buttonCall);
         btnCall.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -294,24 +308,29 @@ public class MainActivity extends Activity {
     private void notFirstRun() {
 
         STARTED = true;
-
         userLayout.setVisibility(View.GONE);
-
         displayName = mSharedPreferences.getString("username", null);
-
         contactManager = new ContactManager(displayName, getBroadcastIp());
         startCallListener();
 
         TextView text = (TextView) findViewById(R.id.textViewSelectContact);
         text.setVisibility(View.VISIBLE);
-
-        Button updateButton = (Button) findViewById(R.id.buttonUpdate);
+        TextView text2 = (TextView) findViewById(R.id.textView_username);
+        text2.setText("Username: " + displayName);
+        text2.setVisibility(View.VISIBLE);
         updateButton.setVisibility(View.VISIBLE);
 
-        Button callButton = (Button) findViewById(R.id.buttonCall);
-        callButton.setVisibility(View.VISIBLE);
+        LinearLayout linearLayoutButtonsCall = (LinearLayout) findViewById(R.id.layout_call_buttons);
+        linearLayoutButtonsCall.setVisibility(View.VISIBLE);
 
         ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
         scrollView.setVisibility(View.VISIBLE);
+
     }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
 }
