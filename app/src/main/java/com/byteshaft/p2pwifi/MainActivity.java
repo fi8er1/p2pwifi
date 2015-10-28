@@ -1,22 +1,26 @@
 package com.byteshaft.p2pwifi;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -25,7 +29,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     static final String LOG_TAG = "UDPchat";
     private static final int LISTENER_PORT = 50003;
@@ -35,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean STARTED = false;
     private boolean IN_CALL = false;
     private boolean LISTEN = false;
+    private boolean firstRun;
+    private LinearLayout userLayout;
+    SharedPreferences mSharedPreferences;
 
     public final static String EXTRA_CONTACT = "hw.dt83.udpchat.CONTACT";
     public final static String EXTRA_IP = "hw.dt83.udpchat.IP";
@@ -45,6 +52,18 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        userLayout = (LinearLayout) findViewById(R.id.layout_username);
+
+        firstRun = mSharedPreferences.getBoolean("first_run", true);
+
+        if (firstRun) {
+            userLayout.setVisibility(View.VISIBLE);
+        } else {
+            notFirstRun();
+        }
 
         Log.i(LOG_TAG, "P2Pwifi started");
 
@@ -57,28 +76,20 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Log.i(LOG_TAG, "Start button pressed");
-                STARTED = true;
 
                 EditText displayNameText = (EditText) findViewById(R.id.editTextDisplayName);
-                displayName = displayNameText.getText().toString();
 
-                displayNameText.setEnabled(false);
-                btnStart.setEnabled(false);
+                String username = displayNameText.getText().toString();
 
-                TextView text = (TextView) findViewById(R.id.textViewSelectContact);
-                text.setVisibility(View.VISIBLE);
+                if (displayNameText.getText().toString().trim().length() < 1) {
+                    Toast.makeText(getApplicationContext(), "Invalid Username", Toast.LENGTH_SHORT).show();
+                } else {
+                    mSharedPreferences.edit().putString("username", username).apply();
+                    mSharedPreferences.edit().putBoolean("first_run", false).apply();
+                    userLayout.setVisibility(View.GONE);
+                    notFirstRun();
+                }
 
-                Button updateButton = (Button) findViewById(R.id.buttonUpdate);
-                updateButton.setVisibility(View.VISIBLE);
-
-                Button callButton = (Button) findViewById(R.id.buttonCall);
-                callButton.setVisibility(View.VISIBLE);
-
-                ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
-                scrollView.setVisibility(View.VISIBLE);
-
-                contactManager = new ContactManager(displayName, getBroadcastIp());
-                startCallListener();
             }
         });
 
@@ -145,13 +156,11 @@ public class MainActivity extends AppCompatActivity {
         radioGroup.removeAllViews();
 
         for(String name : contacts.keySet()) {
-
             RadioButton radioButton = new RadioButton(getBaseContext());
             radioButton.setText(name);
             radioButton.setTextColor(Color.BLACK);
             radioGroup.addView(radioButton);
         }
-
         radioGroup.clearCheck();
     }
 
@@ -268,5 +277,29 @@ public class MainActivity extends AppCompatActivity {
         STARTED = true;
         contactManager = new ContactManager(displayName, getBroadcastIp());
         startCallListener();
+    }
+
+    private void notFirstRun() {
+
+        STARTED = true;
+
+        userLayout.setVisibility(View.GONE);
+
+        displayName = mSharedPreferences.getString("username", null);
+
+        contactManager = new ContactManager(displayName, getBroadcastIp());
+        startCallListener();
+
+        TextView text = (TextView) findViewById(R.id.textViewSelectContact);
+        text.setVisibility(View.VISIBLE);
+
+        Button updateButton = (Button) findViewById(R.id.buttonUpdate);
+        updateButton.setVisibility(View.VISIBLE);
+
+        Button callButton = (Button) findViewById(R.id.buttonCall);
+        callButton.setVisibility(View.VISIBLE);
+
+        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
+        scrollView.setVisibility(View.VISIBLE);
     }
 }
