@@ -6,9 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -34,7 +31,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
-public class MainActivity extends Activity implements SensorEventListener {
+public class MainActivity extends Activity {
 
     static final String LOG_TAG = "UDPchat";
     private static final int LISTENER_PORT = 50003;
@@ -309,7 +306,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     private void notFirstRun() {
-
         STARTED = true;
         userLayout.setVisibility(View.GONE);
         displayName = mSharedPreferences.getString("username", null);
@@ -328,21 +324,10 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
         scrollView.setVisibility(View.VISIBLE);
-
     }
 
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 }
