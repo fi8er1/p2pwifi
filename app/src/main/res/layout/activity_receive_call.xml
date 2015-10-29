@@ -14,13 +14,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Incoming Call"
         android:textSize="20dp"
         android:textStyle="bold"
         android:typeface="monospace"
         android:textColor="#3F51B5"
         android:textAppearance="?android:attr/textAppearanceLarge" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -40,15 +38,5 @@
             android:text="Reject"
             android:layout_marginLeft="50dp"
             android:background="@mipmap/ic_reject_call"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal" >
-        <Button
-            android:id="@+id/buttonEndCall1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="End Call" />
     </LinearLayout>
 </LinearLayout>

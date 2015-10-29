@@ -1,12 +1,19 @@
 package com.byteshaft.p2pwifi;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -18,7 +25,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
-public class MakeCallActivity extends Activity {
+public class MakeCallActivity extends Activity implements SensorEventListener {
 
     private static final String LOG_TAG = "MakeCall";
     private static final int BROADCAST_PORT = 50002;
@@ -27,7 +34,6 @@ public class MakeCallActivity extends Activity {
     private String contactName;
     private String contactIp;
     private boolean LISTEN = true;
-    private boolean IN_CALL = false;
     private AudioCall call;
 
     @Override
@@ -68,8 +74,7 @@ public class MakeCallActivity extends Activity {
     private void endCall() {
         // Ends the chat sessions
         stopListener();
-        if(IN_CALL) {
-
+        if(MainActivity.IN_CALL) {
             call.endCall();
         }
         sendMessage("END:", BROADCAST_PORT);
@@ -80,10 +85,8 @@ public class MakeCallActivity extends Activity {
         // Create listener thread
         LISTEN = true;
         Thread listenThread = new Thread(new Runnable() {
-
             @Override
             public void run() {
-
                 try {
 
                     Log.i(LOG_TAG, "Listener started!");
@@ -94,7 +97,6 @@ public class MakeCallActivity extends Activity {
                     while(LISTEN) {
 
                         try {
-
                             Log.i(LOG_TAG, "Listening for packets");
                             socket.receive(packet);
                             String data = new String(buffer, 0, packet.getLength());
@@ -104,7 +106,7 @@ public class MakeCallActivity extends Activity {
                                 // Accept notification received. Start call
                                 call = new AudioCall(packet.getAddress());
                                 call.startCall();
-                                IN_CALL = true;
+                                MainActivity.IN_CALL = true;
                             }
                             else if(action.equals("REJ:")) {
                                 // Reject notification received. End call
@@ -120,7 +122,7 @@ public class MakeCallActivity extends Activity {
                             }
                         }
                         catch(SocketTimeoutException e) {
-                            if(!IN_CALL) {
+                            if(!MainActivity.IN_CALL) {
 
                                 Log.i(LOG_TAG, "No reply from contact. Ending call");
                                 endCall();
@@ -193,4 +195,29 @@ public class MakeCallActivity extends Activity {
         return true;
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        Sensor mProximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        sensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_UI);
+        PowerManager manager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = manager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
+        if (event.values[0] != mProximitySensor.getMaximumRange() && MainActivity.IN_CALL) {
+            wl.acquire();
+            WindowManager.LayoutParams params = getWindow().getAttributes();
+            params.screenBrightness = 0;
+            getWindow().setAttributes(params);
+            Log.e("onSensorChanged", "NEAR");
+        } else {
+            if (wl.isHeld()) {
+                wl.release();
+            }
+            Log.e("onSensorChanged", "FAR");
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 }
