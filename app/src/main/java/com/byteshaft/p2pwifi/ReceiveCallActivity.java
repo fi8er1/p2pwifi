@@ -34,6 +34,7 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
     private String contactIp;
     private String contactName;
     private boolean LISTEN = true;
+    private boolean IN_CALL = false;
     private AudioCall call;
     ImageButton acceptButton;
     ImageButton rejectButton;
@@ -77,7 +78,7 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
                     sendMessage("ACC:");
                     InetAddress address = InetAddress.getByName(contactIp);
                     Log.i(LOG_TAG, "Calling " + address.toString());
-                    MainActivity.IN_CALL = true;
+                    IN_CALL = true;
                     call = new AudioCall(address);
                     call.startCall();
                     // Hide the buttons as they're not longer required
@@ -114,7 +115,7 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
         }
         // End the call and send a notification
         stopListener();
-        if(MainActivity.IN_CALL) {
+        if(IN_CALL) {
             call.endCall();
         }
         sendMessage("END:");
@@ -212,7 +213,7 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
     public void onSensorChanged(SensorEvent event) {
         mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
-        if (event.values[0] != mProximitySensor.getMaximumRange() && MainActivity.IN_CALL) {
+        if (event.values[0] != mProximitySensor.getMaximumRange() && IN_CALL) {
             Log.e("onSensorChanged", "NEAR");
             wl.acquire();
         } else {

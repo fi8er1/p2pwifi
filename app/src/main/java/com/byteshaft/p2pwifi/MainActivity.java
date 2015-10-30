@@ -39,8 +39,8 @@ public class MainActivity extends Activity {
     private ContactManager contactManager;
     public static String displayName;
     private boolean STARTED = false;
-    public static boolean IN_CALL = false;
     private boolean LISTEN = false;
+    private boolean IN_CALL = false;
     private boolean firstRun;
     private LinearLayout userLayout;
     SharedPreferences mSharedPreferences;

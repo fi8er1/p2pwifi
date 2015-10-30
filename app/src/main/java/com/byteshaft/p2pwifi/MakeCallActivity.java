@@ -33,6 +33,7 @@ public class MakeCallActivity extends Activity implements SensorEventListener {
     private String contactName;
     private String contactIp;
     private boolean LISTEN = true;
+    private boolean IN_CALL = false;
     private AudioCall call;
     PowerManager mPowerManager;
     Sensor mProximitySensor;
@@ -80,7 +81,7 @@ public class MakeCallActivity extends Activity implements SensorEventListener {
     private void endCall() {
         // Ends the chat sessions
         stopListener();
-        if(MainActivity.IN_CALL) {
+        if(IN_CALL) {
             call.endCall();
         }
         sendMessage("END:", BROADCAST_PORT);
@@ -112,7 +113,7 @@ public class MakeCallActivity extends Activity implements SensorEventListener {
                                 // Accept notification received. Start call
                                 call = new AudioCall(packet.getAddress());
                                 call.startCall();
-                                MainActivity.IN_CALL = true;
+                                IN_CALL = true;
                             }
                             else if(action.equals("REJ:")) {
                                 // Reject notification received. End call
@@ -128,7 +129,7 @@ public class MakeCallActivity extends Activity implements SensorEventListener {
                             }
                         }
                         catch(SocketTimeoutException e) {
-                            if(!MainActivity.IN_CALL) {
+                            if(!IN_CALL) {
 
                                 Log.i(LOG_TAG, "No reply from contact. Ending call");
                                 endCall();
@@ -205,7 +206,7 @@ public class MakeCallActivity extends Activity implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
-        if (event.values[0] != mProximitySensor.getMaximumRange() && MainActivity.IN_CALL) {
+        if (event.values[0] != mProximitySensor.getMaximumRange() && IN_CALL) {
             Log.e("onSensorChanged", "NEAR");
             wl.acquire();
         } else {
