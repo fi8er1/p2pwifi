@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -35,12 +34,19 @@ public class MakeCallActivity extends Activity implements SensorEventListener {
     private String contactIp;
     private boolean LISTEN = true;
     private AudioCall call;
+    PowerManager mPowerManager;
+    Sensor mProximitySensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_make_call);
+
+
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mProximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        sensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_UI);
 
         Log.i(LOG_TAG, "MakeCallActivity started!");
 
@@ -197,22 +203,16 @@ public class MakeCallActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        Sensor mProximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        sensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_UI);
-        PowerManager manager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = manager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
+        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
         if (event.values[0] != mProximitySensor.getMaximumRange() && MainActivity.IN_CALL) {
-            wl.acquire();
-            WindowManager.LayoutParams params = getWindow().getAttributes();
-            params.screenBrightness = 0;
-            getWindow().setAttributes(params);
             Log.e("onSensorChanged", "NEAR");
+            wl.acquire();
         } else {
+            Log.e("onSensorChanged", "FAR");
             if (wl.isHeld()) {
                 wl.release();
             }
-            Log.e("onSensorChanged", "FAR");
         }
     }
 
