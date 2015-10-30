@@ -2,13 +2,19 @@ package com.byteshaft.p2pwifi;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -31,7 +37,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements SensorEventListener {
 
     static final String LOG_TAG = "UDPchat";
     private static final int LISTENER_PORT = 50003;
@@ -51,6 +57,12 @@ public class MainActivity extends Activity {
     EditText displayNameText;
     ImageButton updateButton;
 
+
+    PowerManager mPowerManager;
+    Sensor mProximitySensor;
+    PowerManager.WakeLock wl;
+
+
     public final static String EXTRA_CONTACT = "hw.dt83.udpchat.CONTACT";
     public final static String EXTRA_IP = "hw.dt83.udpchat.IP";
     public final static String EXTRA_DISPLAYNAME = "hw.dt83.udpchat.DISPLAYNAME";
@@ -60,6 +72,12 @@ public class MainActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mProximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        sensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_UI);
+        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
 
         displayNameText = (EditText) findViewById(R.id.editTextDisplayName);
 
@@ -330,6 +348,25 @@ public class MainActivity extends Activity {
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Log.i("BOOLEAN", " " + IN_CALL);
+        if (event.values[0] != mProximitySensor.getMaximumRange() && IN_CALL) {
+            Log.e("onSensorChanged", "NEAR");
+            wl.acquire();
+        } else {
+            Log.e("onSensorChanged", "FAR");
+            if (wl.isHeld()) {
+                wl.release();
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 //
 //    @Override

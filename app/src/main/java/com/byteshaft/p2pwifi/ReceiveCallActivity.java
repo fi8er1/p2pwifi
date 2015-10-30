@@ -1,17 +1,11 @@
 package com.byteshaft.p2pwifi;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -26,7 +20,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class ReceiveCallActivity extends Activity implements SensorEventListener {
+public class ReceiveCallActivity extends Activity {
 
     private static final String LOG_TAG = "ReceiveCall";
     private static final int BROADCAST_PORT = 50002;
@@ -40,20 +34,11 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
     ImageButton rejectButton;
     TextView tv_incoming_call;
     Ringtone ringtone;
-    PowerManager mPowerManager;
-    Sensor mProximitySensor;
-    PowerManager.WakeLock wl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receive_call);
-
-        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mProximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        sensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_UI);
-        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
 
         Intent intent = getIntent();
         contactName = intent.getStringExtra(MainActivity.EXTRA_CONTACT);
@@ -212,24 +197,5 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.receive_call, menu);
         return true;
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        Log.i("BOOLEANRCV", " " + IN_CALL);
-        if (event.values[0] != mProximitySensor.getMaximumRange() && IN_CALL) {
-            Log.e("onSensorChanged", "NEAR");
-            wl.acquire();
-        } else {
-            Log.e("onSensorChanged", "FAR");
-            if (wl.isHeld()) {
-                wl.release();
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 }
