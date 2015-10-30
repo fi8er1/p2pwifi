@@ -42,6 +42,7 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
     Ringtone ringtone;
     PowerManager mPowerManager;
     Sensor mProximitySensor;
+    PowerManager.WakeLock wl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,8 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mProximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         sensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_UI);
+        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
 
         Intent intent = getIntent();
         contactName = intent.getStringExtra(MainActivity.EXTRA_CONTACT);
@@ -145,6 +148,7 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
                             if(action.equals("END:")) {
                                 // End call notification received. End call
                                 endCall();
+                                IN_CALL = false;
                             }
                             else {
                                 // Invalid notification received.
@@ -163,6 +167,7 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
                 catch(SocketException e) {
                     Log.e(LOG_TAG, "SocketException in Listener " + e);
                     endCall();
+                    IN_CALL = false;
                 }
             }
         });
@@ -211,8 +216,7 @@ public class ReceiveCallActivity extends Activity implements SensorEventListener
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "Your Tag");
+        Log.i("BOOLEANRCV", " " + IN_CALL);
         if (event.values[0] != mProximitySensor.getMaximumRange() && IN_CALL) {
             Log.e("onSensorChanged", "NEAR");
             wl.acquire();

@@ -45,9 +45,9 @@ public class MainActivity extends Activity {
     private LinearLayout userLayout;
     SharedPreferences mSharedPreferences;
     String address;
-    RadioButton radioButton;
+    static RadioButton radioButton;
     int selectedButton;
-    RadioGroup radioGroup;
+    static RadioGroup radioGroup;
     EditText displayNameText;
     ImageButton updateButton;
 
@@ -181,7 +181,8 @@ public class MainActivity extends Activity {
         for(String name : contacts.keySet()) {
             radioButton = new RadioButton(getBaseContext());
             radioButton.setText(name);
-            radioButton.setTextColor(Color.BLACK);
+            radioButton.setTextColor(Color.DKGRAY);
+            radioButton.setTextSize(16);
             radioGroup.addView(radioButton);
         }
         radioGroup.clearCheck();
@@ -300,8 +301,8 @@ public class MainActivity extends Activity {
         STARTED = true;
         contactManager = new ContactManager(displayName, getBroadcastIp());
         startCallListener();
-        radioGroup.check(0);
-        selectedButton = -1;
+//        radioGroup.check(0);
+//        selectedButton = -1;
         System.out.println(selectedButton);
     }
 
@@ -330,4 +331,10 @@ public class MainActivity extends Activity {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        selectedButton = -1;
+//    }
 }
